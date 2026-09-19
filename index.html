@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canlı Maç Skorları - maccanliskor.vercel.app</title>
+    <title>Canlı Maç Skorları - maccanliskor113</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #090d16; color: #f8fafc; margin: 0; padding: 20px; }
@@ -20,7 +20,7 @@
 <body>
 
     <header>
-        <h1>⚽ maccanliskor.vercel.app</h1>
+        <h1>⚽ Canlı Maç Skorları</h1>
         <div id="status">Bağlantı başlatılıyor...</div>
     </header>
 
@@ -59,7 +59,7 @@
             });
 
             socket.on('connect_error', (error) => {
-                statusDiv.textContent = 'Durum: Ağ/CORS engeli algılandı. Alternatif bağlantı deneniyor...';
+                statusDiv.textContent = 'Durum: Ağ veya güvenlik engeli algılandı.';
                 statusDiv.style.color = '#f87171';
             });
 
@@ -77,7 +77,6 @@
                 
                 container.prepend(item);
 
-                // Performans için log sınırını 100'de tut
                 if (container.children.length > 100) {
                     container.removeChild(container.lastChild);
                 }
