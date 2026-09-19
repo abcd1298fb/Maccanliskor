@@ -1,0 +1,8 @@
+{
+  "name": "maccanliskor",
+  "version": "1.0.0",
+  "description": "Mac Canli Skor Platformu",
+  "scripts": {
+    "build": "echo 'Statik derleme tamamlandi'"
+  }
+}
