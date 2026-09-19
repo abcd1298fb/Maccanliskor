@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canlı Maç Skorları - maccanliskor.vercel.app</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #090d16; color: #f8fafc; margin: 0; padding: 20px; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #38bdf8; margin: 0; font-size: 22px; }
+        #status { font-size: 13px; margin-top: 6px; color: #94a3b8; }
+        .container { max-width: 850px; margin: 0 auto; background: #1e293b; border-radius: 10px; padding: 15px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        #feed-container { height: 480px; overflow-y: auto; background: #020617; border-radius: 6px; padding: 10px; border: 1px solid #1e293b; }
+        .log-item { padding: 8px 10px; border-bottom: 1px solid #1e293b; font-family: monospace; font-size: 12px; }
+        .event-name { color: #f43f5e; font-weight: bold; }
+        .time { color: #64748b; margin-right: 6px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚽ maccanliskor.vercel.app</h1>
+        <div id="status">Bağlantı başlatılıyor...</div>
+    </header>
+
+    <div class="container">
+        <div id="feed-container">
+            <div class="log-item">Canlı akış verileri dinleniyor...</div>
+        </div>
+    </div>
+
+    <!-- Socket.IO v3 İstemci Kütüphanesi -->
+    <script src="https://cdn.socket.io/3.1.3/socket.io.min.js"></script>
+    <script>
+        const statusDiv = document.getElementById('status');
+        const container = document.getElementById('feed-container');
+
+        function initSocket() {
+            statusDiv.textContent = 'Durum: Bağlantı kurulmaya çalışılıyor...';
+            statusDiv.style.color = '#fbbf24';
+
+            const socket = io('https://socket.mackolikfeeds.com', {
+                transports: ['websocket'],
+                path: '/socket.io/',
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 2000
+            });
+
+            socket.on('connect', () => {
+                statusDiv.textContent = 'Durum: Canlı akışa başarıyla bağlandı (Aktif)';
+                statusDiv.style.color = '#34d399';
+            });
+
+            socket.on('disconnect', (reason) => {
+                statusDiv.textContent = `Durum: Bağlantı koptu (${reason}), tekrar bağlanılıyor...`;
+                statusDiv.style.color = '#fb7185';
+            });
+
+            socket.on('connect_error', (error) => {
+                statusDiv.textContent = 'Durum: Ağ/CORS engeli algılandı. Alternatif bağlantı deneniyor...';
+                statusDiv.style.color = '#f87171';
+            });
+
+            // Sunucudan gelen tüm olayları ekrana yansıt
+            socket.onAny((event, ...args) => {
+                if (container.children.length === 1 && container.children[0].textContent.includes('dinleniyor')) {
+                    container.innerHTML = '';
+                }
+
+                const item = document.createElement('div');
+                item.className = 'log-item';
+                
+                const timeStr = new Date().toLocaleTimeString();
+                item.innerHTML = `<span class="time">[${timeStr}]</span><span class="event-name">${event}</span>: <pre style="margin:4px 0 0; white-space: pre-wrap; color:#cbd5e1; display:inline;">${JSON.stringify(args, null, 2)}</pre>`;
+                
+                container.prepend(item);
+
+                // Performans için log sınırını 100'de tut
+                if (container.children.length > 100) {
+                    container.removeChild(container.lastChild);
+                }
+            });
+        }
+
+        initSocket();
+    </script>
+</body>
+</html>
